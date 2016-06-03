@@ -51,7 +51,6 @@ namespace sqlite3pp
   };
 
   class null_type {};
-  extern null_type ignore;
 
   class noncopyable
   {
@@ -323,5 +322,7 @@ namespace sqlite3pp
   };
 
 } // namespace sqlite3pp
+
+#include "sqlite3pp.ipp"
 
 #endif

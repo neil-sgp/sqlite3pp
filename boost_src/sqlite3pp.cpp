@@ -97,7 +97,9 @@ namespace sqlite3pp
     int rc = SQLITE_OK;
     if (db_) {
       rc = sqlite3_close(db_);
-      db_ = 0;
+      if (rc == SQLITE_OK) {
+        db_ = 0;
+      }
     }
 
     return rc;
@@ -483,7 +485,9 @@ namespace sqlite3pp
 
   transaction::transaction(database& db, bool fcommit, bool freserve) : db_(&db), fcommit_(fcommit)
   {
-    db_->execute(freserve ? "BEGIN IMMEDIATE" : "BEGIN");
+    int rc = db_->execute(freserve ? "BEGIN IMMEDIATE" : "BEGIN");
+    if (rc != SQLITE_OK)
+      throw database_error(*db_);
   }
 
   transaction::~transaction()

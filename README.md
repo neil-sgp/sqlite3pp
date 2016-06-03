@@ -1,11 +1,13 @@
+> #### ANNOUNCEMENTS
+> ##### Use files in `headeronly_src` directory. The files in `src` are exactly same but in the form of h/cpp files, which you need to compile and link with.
+> ##### `boost_src` is no longer maintained. Do not use unless you need to use pre-c++1x. It requires `boost` library.
+
 sqlite3pp
 =========
 
-<i>NEWS - With the latest updates, sqlite3pp became boost-free. You don't have to use boost to use sqlite3pp any more. If you want the boost friendly version, the files are in the boost_src directory. But, I highly recommend you use new version if you are using c++11 or later.</i>
+This library makes SQLite3 API more friendly to C++ users. It supports almost all of SQLite3 features using C++ classes such as database, command, query, and transaction. The query class supports iterator concept for fetching records.
 
-It makes SQLite3 API more friendly to C++ users. It supports almost all of SQLite3 features using C++ classes such as database, command, query, and transaction. The query class supports iterator concept for fetching records.
-
-With ext::function class, it's also easy to write the sqlite3's functions and aggregations.
+With ext::function class, it's also easy to use the sqlite3's functions and aggregations in C++.
 
 # Usage
 
@@ -25,24 +27,24 @@ cmd.execute();
 
 ```cpp
 sqlite3pp::command cmd(db, "INSERT INTO contacts (name, phone) VALUES (?, ?)");
-cmd.bind(1, "Mike");
-cmd.bind(2, "555-1234");
+cmd.bind(1, "Mike", sqlite3pp::nocopy);
+cmd.bind(2, "555-1234", sqlite3pp::nocopy);
 cmd.execute();
 ```
 
 ```cpp
 sqlite3pp::command cmd(
   db, "INSERT INTO contacts (name, phone) VALUES (?100, ?101)");
-cmd.bind(100, "Mike");
-cmd.bind(101, "555-1234");
+cmd.bind(100, "Mike", sqlite3pp::nocopy);
+cmd.bind(101, "555-1234", sqlite3pp::nocopy);
 cmd.execute();
 ```
 
 ```cpp
 sqlite3pp::command cmd(
   db, "INSERT INTO contacts (name, phone) VALUES (:user, :phone)");
-cmd.bind(":user", "Mike");
-cmd.bind(":phone", "555-1234");
+cmd.bind(":user", "Mike", sqlite3pp::nocopy);
+cmd.bind(":phone", "555-1234", sqlite3pp::nocopy);
 cmd.execute();
 ```
 
@@ -53,8 +55,8 @@ sqlite3pp::transaction xct(db);
 {
   sqlite3pp::command cmd(
     db, "INSERT INTO contacts (name, phone) VALUES (:user, :phone)");
-  cmd.bind(":user", "Mike");
-  cmd.bind(":phone", "555-1234");
+  cmd.bind(":user", "Mike", sqlite3pp::nocopy);
+  cmd.bind(":phone", "555-1234", sqlite3pp::nocopy);
   cmd.execute();
 }
 xct.rollback();
@@ -97,10 +99,18 @@ for (sqlite3pp::query::iterator i = qry.begin(); i != qry.end(); ++i) {
 }
 ```
 
+```cpp
+for (auto v : qry) {
+  string name, phone;
+  v.getter() >> sqlite3pp::ignore >> name >> phone;
+  cout << "\t" << name << "\t" << phone << endl;
+}
+```
+
 ## attach
 
 ```cpp
-sqlite3pp::database db("foods.db");b
+sqlite3pp::database db("foods.db");
 db.attach("test.db", "test");
 
 sqlite3pp::query qry(
@@ -289,8 +299,8 @@ sqlite3pp::query qry(
 # See also
 * http://www.sqlite.org/
 * https://code.google.com/p/sqlite3pp/ 
-* http://ideathinking.com/2015/02/using-variadic-templates-with-different-parameter-types.html
-* http://ideathinking.com/2015/02/using-variadic-templates-with-function-calls-using-tuple.html
+* https://github.com/iwongu/sqlite3pp/wiki/Using-variadic-templates-with-different-parameter-types
+* https://github.com/iwongu/sqlite3pp/wiki/Using-variadic-templates-with-function-calls-using-tuple
 * [c-of-day-43-sqlite3-c-wrapper-1](http://idea-thinking.blogspot.com/2007/09/c-of-day-43-sqlite3-c-wrapper-1.html) (Korean)
 * [c-of-day-44-sqlite3-c-wrapper-2](http://idea-thinking.blogspot.com/2007/09/c-of-day-44-sqlite3-c-wrapper-2.html) (Korean)
 * [c-of-day-45-sqlite3-c-wrapper-3](http://idea-thinking.blogspot.com/2007/09/c-of-day-45-sqlite3-c-wrapper-3.html) (Korean)
